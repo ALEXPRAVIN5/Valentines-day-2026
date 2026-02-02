@@ -51,7 +51,6 @@
       position: relative;
     }
 
-    /* Logic to switch pages */
     .hidden { display: none !important; }
 
     .art {
@@ -63,7 +62,6 @@
 
     h1 { font-size: clamp(24px, 4vw, 40px); margin: 12px 0; }
 
-    /* Button Styling */
     .button-zone {
       position: relative;
       width: 100%;
@@ -89,7 +87,6 @@
     #yesBtn { left: 15%; background: var(--yes); color: #fff; z-index: 10; }
     #noBtn { left: 60%; background: #e5e7eb; color: #111827; }
 
-    /* Terms Page Styling */
     .tnc-link {
       color: var(--yes);
       text-decoration: underline;
@@ -97,36 +94,69 @@
       font-weight: 600;
       display: inline-block;
       margin-top: 10px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
 
     .tnc-content {
       text-align: left;
-      max-height: 60vh;
+      max-height: 40vh;
       overflow-y: auto;
       padding: 10px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
     }
 
-    .tnc-content ul {
-      line-height: 1.6;
-      padding-left: 20px;
+    .signature-box {
+      margin-top: 20px;
+      padding: 15px;
+      border-top: 2px dashed #ffb6c1;
+      text-align: left;
+    }
+
+    .signature-box input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ffb6c1;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    /* The new message style */
+    #sig-hint {
+      color: #d63384;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 8px;
+      display: block;
     }
 
     .back-btn {
       margin-top: 20px;
       position: static;
       transform: none;
-      background: #333;
+      background: #ff3b7a;
       color: white;
-      padding: 10px 20px;
+      padding: 12px 25px;
+      opacity: 0.4;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .back-btn.active {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .result { text-align: center; }
     .fireworks { width: 100%; max-width: 350px; border-radius: 12px; }
-
-    @keyframes pop {
-      from { transform: scale(.95); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
   </style>
 </head>
 
@@ -145,9 +175,12 @@
 
       <h1>Hey Neha Darling, will you be my valentine? 💓</h1>
 
-      <span class="tnc-link" id="view-tnc">*terms and conditions applied 😝</span>
+      <div id="tnc-trigger-container">
+        <p>Please review the agreement to unlock the decision:</p>
+        <span class="tnc-link" id="view-tnc">*view terms and conditions applied 😝</span>
+      </div>
 
-      <section class="button-zone" id="zone">
+      <section class="button-zone hidden" id="zone">
         <button id="yesBtn">Yes</button>
         <button id="noBtn">No</button>
       </section>
@@ -156,8 +189,6 @@
     <div id="tnc-page" class="hidden">
       <h2>The Official Love Contract</h2>
       <div class="tnc-content">
-        <p>
-          By clicking "Yes", you hereby agree to the following legally (and romantically) binding terms:
           <ul>
             <li><strong>Love guaranteed for life.</strong></li>
             <li>No refunds, exchanges, or returns on heart-space provided.</li>
@@ -167,9 +198,17 @@
             <li>Late night ice cream runs are non-negotiable.</li>
             <li>This contract is valid across all universes and timelines.</li>
           </ul>
-        </p>
       </div>
-      <button class="back-btn" id="back-to-main">Go Back to the Question</button>
+
+      <div class="signature-box">
+        <label>
+          <input type="checkbox" id="accept-check"> I accept all romantic terms above
+        </label>
+        <input type="text" id="sig-input" placeholder="Type your first name to sign...">
+        <span id="sig-hint" class="hidden">Darling, please type your first name correctly🥲</span>
+      </div>
+
+      <button class="back-btn" id="back-to-main">Sign & Unlock Buttons</button>
     </div>
 
     <section id="result" class="hidden">
@@ -183,15 +222,43 @@
     const mainPage = document.getElementById("main-page");
     const tncPage = document.getElementById("tnc-page");
     const resultPage = document.getElementById("result");
+    const zone = document.getElementById("zone");
+    const tncTrigger = document.getElementById("tnc-trigger-container");
     
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
-    const viewTnc = document.getElementById("view-tnc");
     const backBtn = document.getElementById("back-to-main");
-    const zone = document.getElementById("zone");
+    
+    const sigInput = document.getElementById("sig-input");
+    const acceptCheck = document.getElementById("accept-check");
+    const sigHint = document.getElementById("sig-hint");
 
-    /* Navigation Logic */
-    viewTnc.addEventListener("click", () => {
+    /* Validation Logic for Signature */
+    function validateSignature() {
+      const nameVal = sigInput.value.trim().toLowerCase();
+      const isNamedNeha = nameVal === "neha";
+      const isChecked = acceptCheck.checked;
+
+      // Show the 'Darling...' message if she has typed something but it's wrong
+      if (sigInput.value.trim().length > 0 && !isNamedNeha) {
+        sigHint.classList.remove("hidden");
+      } else {
+        sigHint.classList.add("hidden");
+      }
+
+      // Unlock button only if name is Neha AND checkbox is checked
+      if (isNamedNeha && isChecked) {
+        backBtn.classList.add("active");
+      } else {
+        backBtn.classList.remove("active");
+      }
+    }
+
+    sigInput.addEventListener("input", validateSignature);
+    acceptCheck.addEventListener("change", validateSignature);
+
+    /* Navigation */
+    document.getElementById("view-tnc").addEventListener("click", () => {
       mainPage.classList.add("hidden");
       tncPage.classList.remove("hidden");
     });
@@ -199,42 +266,13 @@
     backBtn.addEventListener("click", () => {
       tncPage.classList.add("hidden");
       mainPage.classList.remove("hidden");
+      zone.classList.remove("hidden");
+      tncTrigger.classList.add("hidden");
     });
 
-    /* No Button Logic */
+    /* No Button Movement Logic */
     let yesScale = 1;
     function moveNo(px, py) {
       const z = zone.getBoundingClientRect();
       const b = noBtn.getBoundingClientRect();
-      let dx = (b.left + b.width / 2) - px;
-      let dy = (b.top + b.height / 2) - py;
-      let mag = Math.hypot(dx, dy) || 1;
-      
-      let newLeft = (b.left - z.left) + (dx / mag) * 120;
-      let newTop  = (b.top - z.top) + (dy / mag) * 120;
-
-      newLeft = Math.max(0, Math.min(newLeft, z.width - b.width));
-      newTop  = Math.max(0, Math.min(newTop, z.height - b.height));
-
-      noBtn.style.left = newLeft + "px";
-      noBtn.style.top = newTop + "px";
-      
-      yesScale = Math.min(2.5, yesScale + 0.1);
-      yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
-    }
-
-    zone.addEventListener("pointermove", e => {
-      const b = noBtn.getBoundingClientRect();
-      const dist = Math.hypot((b.left + b.width / 2) - e.clientX, (b.top + b.height / 2) - e.clientY);
-      if (dist < 100) moveNo(e.clientX, e.clientY);
-    });
-
-    /* Final Success */
-    yesBtn.addEventListener("click", () => {
-      mainPage.classList.add("hidden");
-      resultPage.classList.remove("hidden");
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-    });
-  </script>
-</body>
-</html>
+      let dx = (b.left + b.width / 2)

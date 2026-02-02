@@ -51,6 +51,7 @@
       position: relative;
     }
 
+    /* Crucial: Ensure hidden really hides things */
     .hidden { display: none !important; }
 
     .art {
@@ -87,13 +88,15 @@
     #yesBtn { left: 15%; background: var(--yes); color: #fff; z-index: 10; }
     #noBtn { left: 60%; background: #e5e7eb; color: #111827; }
 
+    /* Make the T&C link easier to click on mobile */
     .tnc-link {
       color: var(--yes);
       text-decoration: underline;
       cursor: pointer;
       font-weight: 600;
       display: inline-block;
-      margin-top: 10px;
+      padding: 10px; 
+      margin-top: 5px;
       animation: pulse 2s infinite;
     }
 
@@ -105,15 +108,16 @@
 
     .tnc-content {
       text-align: left;
-      max-height: 40vh;
+      max-height: 35vh;
       overflow-y: auto;
-      padding: 10px;
+      padding: 15px;
       background: rgba(255, 255, 255, 0.5);
       border-radius: 12px;
+      margin-bottom: 10px;
     }
 
     .signature-box {
-      margin-top: 20px;
+      margin-top: 15px;
       padding: 15px;
       border-top: 2px dashed #ffb6c1;
       text-align: left;
@@ -129,7 +133,6 @@
       outline: none;
     }
 
-    /* The new message style */
     #sig-hint {
       color: #d63384;
       font-size: 14px;
@@ -139,23 +142,23 @@
     }
 
     .back-btn {
-      margin-top: 20px;
+      margin-top: 15px;
       position: static;
       transform: none;
       background: #ff3b7a;
       color: white;
       padding: 12px 25px;
-      opacity: 0.4;
+      opacity: 0.3;
       pointer-events: none;
-      transition: opacity 0.3s ease;
+      transition: all 0.3s ease;
     }
 
     .back-btn.active {
       opacity: 1;
       pointer-events: auto;
+      box-shadow: 0 5px 15px rgba(255, 59, 122, 0.4);
     }
 
-    .result { text-align: center; }
     .fireworks { width: 100%; max-width: 350px; border-radius: 12px; }
   </style>
 </head>
@@ -201,7 +204,7 @@
       </div>
 
       <div class="signature-box">
-        <label>
+        <label style="cursor: pointer;">
           <input type="checkbox" id="accept-check"> I accept all romantic terms above
         </label>
         <input type="text" id="sig-input" placeholder="Type your first name to sign...">
@@ -219,12 +222,14 @@
   </main>
 
   <script>
+    // Elements
     const mainPage = document.getElementById("main-page");
     const tncPage = document.getElementById("tnc-page");
     const resultPage = document.getElementById("result");
     const zone = document.getElementById("zone");
     const tncTrigger = document.getElementById("tnc-trigger-container");
     
+    const viewTncBtn = document.getElementById("view-tnc");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const backBtn = document.getElementById("back-to-main");
@@ -233,20 +238,26 @@
     const acceptCheck = document.getElementById("accept-check");
     const sigHint = document.getElementById("sig-hint");
 
-    /* Validation Logic for Signature */
+    // 1. Navigation: Go to T&C
+    viewTncBtn.addEventListener("click", () => {
+      mainPage.classList.add("hidden");
+      tncPage.classList.remove("hidden");
+    });
+
+    // 2. Validation Logic
     function validateSignature() {
       const nameVal = sigInput.value.trim().toLowerCase();
       const isNamedNeha = nameVal === "neha";
       const isChecked = acceptCheck.checked;
 
-      // Show the 'Darling...' message if she has typed something but it's wrong
+      // Show hint if typing but wrong
       if (sigInput.value.trim().length > 0 && !isNamedNeha) {
         sigHint.classList.remove("hidden");
       } else {
         sigHint.classList.add("hidden");
       }
 
-      // Unlock button only if name is Neha AND checkbox is checked
+      // Enable the button
       if (isNamedNeha && isChecked) {
         backBtn.classList.add("active");
       } else {
@@ -257,22 +268,50 @@
     sigInput.addEventListener("input", validateSignature);
     acceptCheck.addEventListener("change", validateSignature);
 
-    /* Navigation */
-    document.getElementById("view-tnc").addEventListener("click", () => {
-      mainPage.classList.add("hidden");
-      tncPage.classList.remove("hidden");
-    });
-
+    // 3. Navigation: Return to Main & Unlock Decisions
     backBtn.addEventListener("click", () => {
       tncPage.classList.add("hidden");
       mainPage.classList.remove("hidden");
-      zone.classList.remove("hidden");
-      tncTrigger.classList.add("hidden");
+      
+      // The Magic Part:
+      tncTrigger.classList.add("hidden"); // Remove the "view terms" link
+      zone.classList.remove("hidden");    // Show the Yes/No buttons
     });
 
-    /* No Button Movement Logic */
+    // 4. Run-away 'No' Button Logic
     let yesScale = 1;
     function moveNo(px, py) {
       const z = zone.getBoundingClientRect();
       const b = noBtn.getBoundingClientRect();
-      let dx = (b.left + b.width / 2)
+      let dx = (b.left + b.width / 2) - px;
+      let dy = (b.top + b.height / 2) - py;
+      let mag = Math.hypot(dx, dy) || 1;
+      
+      let newLeft = (b.left - z.left) + (dx / mag) * 120;
+      let newTop  = (b.top - z.top) + (dy / mag) * 120;
+
+      newLeft = Math.max(0, Math.min(newLeft, z.width - b.width));
+      newTop  = Math.max(0, Math.min(newTop, z.height - b.height));
+
+      noBtn.style.left = newLeft + "px";
+      noBtn.style.top = newTop + "px";
+      
+      yesScale = Math.min(3, yesScale + 0.15);
+      yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
+    }
+
+    zone.addEventListener("pointermove", e => {
+      const b = noBtn.getBoundingClientRect();
+      const dist = Math.hypot((b.left + b.width / 2) - e.clientX, (b.top + b.height / 2) - e.clientY);
+      if (dist < 80) moveNo(e.clientX, e.clientY);
+    });
+
+    // 5. Final Success
+    yesBtn.addEventListener("click", () => {
+      mainPage.classList.add("hidden");
+      resultPage.classList.remove("hidden");
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    });
+  </script>
+</body>
+</html>

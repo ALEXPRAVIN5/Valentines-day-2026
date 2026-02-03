@@ -14,7 +14,6 @@
       --card: #ffffffcc;
       --yes: #ff3b7a;
       --yesHover: #ff1f68;
-      --text: #333;
     }
 
     * { box-sizing: border-box; }
@@ -28,7 +27,6 @@
       font-family: system-ui, sans-serif;
       overflow: hidden;
       padding: 16px;
-      color: var(--text);
     }
 
     #confettiCanvas {
@@ -48,26 +46,25 @@
       border-radius: 22px;
       text-align: center;
       box-shadow: 0 18px 60px rgba(0,0,0,.15);
-      position: relative;
     }
 
-    .hidden { display: none !important; }
-
     .art {
-      width: min(220px, 70vw);
+      width: min(260px, 80vw);
       margin: 0 auto 10px;
       display: block;
       filter: drop-shadow(0 10px 14px rgba(0,0,0,.12));
     }
 
-    h1 { font-size: clamp(24px, 4vw, 40px); margin: 12px 0; }
+    h1 {
+      font-size: clamp(26px, 4vw, 44px);
+      margin: 12px 0 18px;
+    }
 
-    /* Button Styling */
     .button-zone {
       position: relative;
-      width: 100%;
-      height: 140px;
-      margin: 20px auto;
+      width: min(520px, 92%);
+      height: 150px;
+      margin: 0 auto;
       touch-action: none;
     }
 
@@ -75,81 +72,59 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      padding: 14px 28px;
+      padding: 16px 24px;
       font-size: 18px;
       font-weight: 800;
       border-radius: 999px;
       border: none;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(0,0,0,.1);
+      box-shadow: 0 10px 24px rgba(0,0,0,.14);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
       transition: transform .15s ease, background .12s ease;
     }
 
-    #yesBtn { left: 15%; background: var(--yes); color: #fff; z-index: 10; }
-    #noBtn { left: 60%; background: #e5e7eb; color: #111827; }
+    #yesBtn {
+      left: 10%;
+      background: var(--yes);
+      color: #fff;
+      z-index: 10;
+    }
+    #yesBtn:hover { background: var(--yesHover); }
 
-    /* Terms Page Styling */
-    .tnc-link {
-      color: var(--yes);
-      text-decoration: underline;
-      cursor: pointer;
-      font-weight: 600;
-      display: inline-block;
+    #noBtn {
+      left: 60%;
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .hint {
       margin-top: 10px;
-      animation: pulse 2s infinite;
+      font-size: 13px;
+      opacity: .7;
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+    .result {
+      display: none;
+      margin-top: 18px;
+      animation: pop .35s ease;
     }
 
-    .tnc-content {
-      text-align: left;
-      max-height: 50vh;
-      overflow-y: auto;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 12px;
+    .result h2 {
+      font-size: clamp(30px, 4.5vw, 46px);
+      margin: 10px 0;
     }
 
-    /* Signature Section */
-    .signature-box {
-      margin-top: 20px;
-      padding: 15px;
-      border-top: 2px dashed #ffb6c1;
-      text-align: left;
+    .fireworks {
+      width: min(380px, 90vw);
+      margin: 0 auto;
+      display: block;
     }
 
-    .signature-box input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-top: 10px;
-      font-family: 'Cursive', sans-serif; /* Give it a signature feel */
-      font-size: 16px;
+    @keyframes pop {
+      from { transform: scale(.96); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
-
-    .back-btn {
-      margin-top: 20px;
-      position: static;
-      transform: none;
-      background: #ff3b7a;
-      color: white;
-      padding: 12px 25px;
-      opacity: 0.5;
-      pointer-events: none; /* Hidden until signed */
-    }
-
-    .back-btn.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .result { text-align: center; }
-    .fireworks { width: 100%; max-width: 350px; border-radius: 12px; }
   </style>
 </head>
 
@@ -157,135 +132,131 @@
   <canvas id="confettiCanvas"></canvas>
 
   <main class="card">
-    
-    <div id="main-page">
-      <svg class="art" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
-        <path d="M250 50 C250 33 270 25 282 38 C294 25 314 33 314 50 C314 78 282 92 282 106 C282 92 250 78 250 50Z" fill="#ff4d7d"/>
-        <path d="M90 120 C90 70 140 40 190 60 C240 40 290 70 290 120 C290 180 240 210 190 210 C140 210 90 180 90 120Z" fill="#f7c7a1"/>
-        <circle cx="160" cy="130" r="8" fill="#333"/>
-        <circle cx="220" cy="130" r="8" fill="#333"/>
-      </svg>
+    <svg class="art" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fur" x1="0" x2="1">
+          <stop offset="0" stop-color="#f7c7a1"/>
+          <stop offset="1" stop-color="#f2a97b"/>
+        </linearGradient>
+        <linearGradient id="heart" x1="0" x2="1">
+          <stop offset="0" stop-color="#ff4d7d"/>
+          <stop offset="1" stop-color="#ff1f68"/>
+        </linearGradient>
+      </defs>
+      <path d="M250 50 C250 33 270 25 282 38 C294 25 314 33 314 50 C314 78 282 92 282 106 C282 92 250 78 250 50Z" fill="url(#heart)"/>
+      <path d="M90 120 C90 70 140 40 190 60 C240 40 290 70 290 120 C290 180 240 210 190 210 C140 210 90 180 90 120Z" fill="url(#fur)"/>
+      <path d="M110 92 L95 55 L140 78 Z" fill="#f2a97b"/>
+      <path d="M270 92 L285 55 L240 78 Z" fill="#f2a97b"/>
+      <circle cx="160" cy="130" r="8"/>
+      <circle cx="220" cy="130" r="8"/>
+      <path d="M190 144 C186 144 182 148 182 152 C182 160 190 164 190 170 C190 164 198 160 198 152 C198 148 194 144 190 144Z" fill="#ff7aa2"/>
+    </svg>
 
-      <h1>Hey Neha Darling, will you be my valentine? 💓</h1>
+    <h1> Heyy, Neha Darling, will you be my valentine? 💓</h1>
+    <h4>Once accepted, cannot be withdrawn.</h4>
+    <h6>Applied for life</h6>
+    <h6>*terms and conditions applied😝</h6>
 
-      <div id="tnc-trigger-container">
-        <p>Please review the agreement to unlock the decision:</p>
-        <span class="tnc-link" id="view-tnc">*view terms and conditions applied 😝</span>
-      </div>
-
-      <section class="button-zone hidden" id="zone">
-        <button id="yesBtn">Yes</button>
-        <button id="noBtn">No</button>
-      </section>
-    </div>
-
-    <div id="tnc-page" class="hidden">
-      <h2>The Official Love Contract</h2>
-      <div class="tnc-content">
-          <ul>
-            <li><strong>Love guaranteed for life.</strong></li>
-            <li>No refunds, exchanges, or returns on heart-space provided.</li>
-            <li>The "Party of the First Part" (You) must agree to frequent cuddles.</li>
-            <li>All arguments must be resolved with chocolate or kisses. </li>
-            <li>Unlimited supply of forehead kisses is mandatory.</li>
-            <li>Late night ice cream runs are non-negotiable.</li>
-            <li>This contract is valid across all universes and timelines.</li>
-          </ul>
-      </div>
-
-      <div class="signature-box">
-        <label>
-          <input type="checkbox" id="accept-check"> I accept all romantic terms above
-        </label>
-        <input type="text" id="sig-input" placeholder="Type your name (Neha) to sign...">
-      </div>
-
-      <button class="back-btn" id="back-to-main">Sign & Unlock Buttons</button>
-    </div>
-
-    <section id="result" class="hidden">
-      <h2>YAY! 🎉</h2>
-      <img class="fireworks" src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjg1YWp0cWc5eDFxNDFvaGZiMTh3MGRrbWhnZTZ4bng5NHhjNDF1cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/0ivzm1DKtLBCtSSMNH/giphy.gif" alt="Success GIF" />
+    <section class="button-zone" id="zone">
+      <button id="yesBtn">Yes</button>
+      <button id="noBtn">No</button>
     </section>
 
+    <div class="hint" id="hint">“No” seems a bit shy 😈</div>
+
+    <section class="result" id="result">
+      <h2>YAY! 🎉</h2>
+      <img class="fireworks" src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjg1YWp0cWc5eDFxNDFvaGZiMTh3MGRrbWhnZTZ4bng5NHhjNDF1cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/0ivzm1DKtLBCtSSMNH/giphy.gif" alt="Fireworks" />
+    </section>
   </main>
 
   <script>
-    const mainPage = document.getElementById("main-page");
-    const tncPage = document.getElementById("tnc-page");
-    const resultPage = document.getElementById("result");
     const zone = document.getElementById("zone");
-    const tncTrigger = document.getElementById("tnc-trigger-container");
-    
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
-    const backBtn = document.getElementById("back-to-main");
-    
-    const sigInput = document.getElementById("sig-input");
-    const acceptCheck = document.getElementById("accept-check");
+    const result = document.getElementById("result");
+    const hint = document.getElementById("hint");
+    const confettiCanvas = document.getElementById("confettiCanvas");
 
-    /* Validation Logic for Signature */
-    function validateSignature() {
-      const isNamedNeha = sigInput.value.trim().toLowerCase() === "neha";
-      const isChecked = acceptCheck.checked;
+    /* ---------- CONFETTI SETUP ---------- */
+    function resizeConfettiCanvas() {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      confettiCanvas.width = Math.floor(window.innerWidth * dpr);
+      confettiCanvas.height = Math.floor(window.innerHeight * dpr);
+    }
+    resizeConfettiCanvas();
+    window.addEventListener("resize", resizeConfettiCanvas);
 
-      if (isNamedNeha && isChecked) {
-        backBtn.classList.add("active");
-      } else {
-        backBtn.classList.remove("active");
-      }
+    const confettiInstance = confetti.create(confettiCanvas, { resize: false, useWorker: true });
+
+    function fullScreenConfetti() {
+      const end = Date.now() + 2000;
+      (function frame() {
+        confettiInstance({
+          particleCount: 15,
+          spread: 80,
+          origin: { x: Math.random(), y: Math.random() - 0.2 }
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      })();
     }
 
-    sigInput.addEventListener("input", validateSignature);
-    acceptCheck.addEventListener("change", validateSignature);
-
-    /* Navigation */
-    document.getElementById("view-tnc").addEventListener("click", () => {
-      mainPage.classList.add("hidden");
-      tncPage.classList.remove("hidden");
-    });
-
-    backBtn.addEventListener("click", () => {
-      tncPage.classList.add("hidden");
-      mainPage.classList.remove("hidden");
-      // NOW SHOW THE BUTTONS
-      zone.classList.remove("hidden");
-      tncTrigger.classList.add("hidden"); // Hide the link after it's been signed
-    });
-
-    /* No Button Movement Logic */
+    /* ---------- YES BUTTON GROWTH ---------- */
     let yesScale = 1;
+    function growYes() {
+      yesScale = Math.min(2.5, yesScale + 0.1);
+      // BACKTICKS FIXED HERE
+      yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
+    }
+
+    /* ---------- NO BUTTON ESCAPE LOGIC ---------- */
     function moveNo(px, py) {
       const z = zone.getBoundingClientRect();
       const b = noBtn.getBoundingClientRect();
+
+      // Calculate direction to push the button
       let dx = (b.left + b.width / 2) - px;
       let dy = (b.top + b.height / 2) - py;
       let mag = Math.hypot(dx, dy) || 1;
       
+      // Move it 100px away from the pointer
       let newLeft = (b.left - z.left) + (dx / mag) * 120;
       let newTop  = (b.top - z.top) + (dy / mag) * 120;
 
+      // Keep it inside the box
       newLeft = Math.max(0, Math.min(newLeft, z.width - b.width));
       newTop  = Math.max(0, Math.min(newTop, z.height - b.height));
 
       noBtn.style.left = newLeft + "px";
       noBtn.style.top = newTop + "px";
       
-      yesScale = Math.min(2.5, yesScale + 0.1);
-      yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
+      growYes(); // Make Yes button grow whenever No button is forced to move
     }
 
+    // Trigger on mouse move
     zone.addEventListener("pointermove", e => {
       const b = noBtn.getBoundingClientRect();
-      const dist = Math.hypot((b.left + b.width / 2) - e.clientX, (b.top + b.height / 2) - e.clientY);
+      const dist = Math.hypot(
+        (b.left + b.width / 2) - e.clientX,
+        (b.top + b.height / 2) - e.clientY
+      );
+      // If pointer is within 100px, move the button
       if (dist < 100) moveNo(e.clientX, e.clientY);
     });
 
-    /* Final Success */
+    // Trigger on click/tap (for mobile users)
+    noBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      // Jump to a random position if they somehow manage to click it
+      moveNo(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
+    });
+
+    /* ---------- SUCCESS ACTION ---------- */
     yesBtn.addEventListener("click", () => {
-      mainPage.classList.add("hidden");
-      resultPage.classList.remove("hidden");
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+      zone.style.display = "none";
+      hint.style.display = "none";
+      result.style.display = "block";
+      fullScreenConfetti();
     });
   </script>
 </body>
